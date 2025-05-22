@@ -11,18 +11,21 @@ module.exports = function (app) {
     // use ConvertHandler to find all values based on input
     let initNum = convertHandler.getNum(req.query.input);
     let initUnit = convertHandler.getUnit(req.query.input);
-    let returnNum = convertHandler.convert(initNum, initUnit);
-    let returnUnit = convertHandler.getReturnUnit(initUnit);
-    let outString = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);
     
     // output to user
-    if (initNum === -1 && initUnit === -1) {
+    if (!initNum && !initUnit) {
       res.send("invalid number and unit");
-    } else if (initNum === -1) {
+    } else if (!initNum) {
       res.send("invalid number");
-    } else if (initUnit === -1) {
+    } else if (!initUnit) {
       res.send("invalid unit");
     } else {
+      // thanks https://www.sitepoint.com/rounding-numbers-javascript/ for toFixed and Number
+      // rounds to 5 decimal places, ensures value is numeric
+      let returnNum = Number(convertHandler.convert(initNum, initUnit).toFixed(5));
+      let returnUnit = convertHandler.getReturnUnit(initUnit);
+      let outString = convertHandler.getString(initNum, initUnit, returnNum, returnUnit);
+
       res.json({
         "initNum": initNum,
         "initUnit": initUnit,

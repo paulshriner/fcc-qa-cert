@@ -1,46 +1,65 @@
-// Start at beginning of string, look for fraction, decimal, or whole number. Then look for unit.
-const regex = /^(\d+\/[1-9]+|\d*\.\d+|\d+)(gal|L|mi|km|lbs|kg)/;
-// Similar but start at end to get unit
-const unitRegex = /(\d+\/[1-9]+|\d*\.\d+|\d+)?(gal|L|mi|km|lbs|kg)$/;
+// Matches strings with numbers, decimal points, and slashes from beginning
+const numRegex = /^[\d\.\/]+/g;
+// starts from end of string, checks for valid unit
+const unitRegex = /[gal|L|mi|km|lbs|kg]+$/gi;
+// checks if no number was provided
+const beginUnitRegex = /^[gal|L|mi|km|lbs|kg]+$/gi;
 
 function ConvertHandler() {
   this.getNum = function(input) {
     // check against regex
-    let result = input.match(regex);
+    let result = input.match(numRegex);
 
-    if (result === null) {
-      // invalid number, possibly with invalid or valid unit, but that is not checked here
-      return -1;
-    } else if (result[1] === undefined) {
-      // did not enter in number, default to 1
-      return 1;
+    if (result !== null && result[0] != 0) {
+      // check for fractions
+      // thanks https://stackoverflow.com/questions/7142657/convert-fraction-string-to-decimal for converting string fraction to number
+      let split = result[0].split('/');
+      if (split.length === 2) {
+        // check for valid decimal points
+        let splitNum = split[0].split('.');
+        let splitDen = split[1].split('.');
+
+        if (splitNum.length <= 2 && splitDen.length <= 2 && split[1] != 0) {
+          return split[0] / split[1];
+        }
+      } else if (split.length < 2) {
+        let split = result[0].split('.');
+
+        if (split.length <= 2) {
+          return Number(split);
+        }
+      }
+    } else {
+      let unit = input.match(beginUnitRegex);
+      
+      if (unit !== null) {
+        return 1;
+      }
     }
 
-    // thanks https://stackoverflow.com/questions/7142657/convert-fraction-string-to-decimal for converting string fraction to number
-    let split = result[1].split('/');
-    if (split.length === 2) {
-      return split[0] / split[1];
-    }
-    
-    return parseFloat(result[1]);
+    return false;
   };
   
   this.getUnit = function(input) {
     // check against regex
     let result = input.match(unitRegex);
 
-    if (result === null) {
-      // invalid result
-      return -1;
-    } else if (result[2] === undefined) {
-      // invalid unit, possibly with invalid or valid number, but that is not checked here
-      return -1;
+    if (result !== null) {
+      let lowerResult = result[0].toLowerCase();
+
+      // liters needs to be capital, rest are lowercase
+      if (lowerResult === "l") {
+        return "L";
+      }
+
+      return lowerResult;
     }
     
-    return result[2];
+    return false;
   };
   
   this.getReturnUnit = function(initUnit) {
+    // this assumes that initUnit has been correctly processed by getUnit
     switch (initUnit) {
       case "gal":
         return "L";
@@ -60,6 +79,7 @@ function ConvertHandler() {
   };
 
   this.spellOutUnit = function(unit) {
+    // this assumes that unit has been correctly processed by getUnit
     switch (unit) {
       case "gal":
         return "gallons";
@@ -84,6 +104,7 @@ function ConvertHandler() {
     const miToKm = 1.60934;
     
     switch (initUnit) {
+      // this assumes that unit has been correctly processed by getUnit
       case "gal":
         return initNum * galToL;
       case "L":
@@ -104,7 +125,6 @@ function ConvertHandler() {
   this.getString = function(initNum, initUnit, returnNum, returnUnit) {
     return initNum + " " + this.spellOutUnit(initUnit) + " converts to " + returnNum + " " + this.spellOutUnit(returnUnit);
   };
-  
 }
 
 module.exports = ConvertHandler;
