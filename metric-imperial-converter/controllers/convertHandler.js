@@ -1,9 +1,9 @@
 // Matches strings with numbers, decimal points, and slashes from beginning
 const numRegex = /^[\d\.\/]+/g;
 // starts from end of string, checks for valid unit
-const unitRegex = /[gal|L|mi|km|lbs|kg]+$/gi;
+const unitRegex = /(gal|L|mi|km|lbs|kg)$/gi;
 // checks if no number was provided
-const beginUnitRegex = /^[gal|L|mi|km|lbs|kg]+$/gi;
+const beginUnitRegex = /^(gal|L|mi|km|lbs|kg)$/gi;
 
 function ConvertHandler() {
   this.getNum = function(input) {
@@ -23,10 +23,10 @@ function ConvertHandler() {
           return split[0] / split[1];
         }
       } else if (split.length < 2) {
-        let split = result[0].split('.');
+        split = result[0].split('.');
 
         if (split.length <= 2) {
-          return Number(split);
+          return Number(result[0]);
         }
       }
     } else {
@@ -43,6 +43,7 @@ function ConvertHandler() {
   this.getUnit = function(input) {
     // check against regex
     let result = input.match(unitRegex);
+    console.log(result);
 
     if (result !== null) {
       let lowerResult = result[0].toLowerCase();
