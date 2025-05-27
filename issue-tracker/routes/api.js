@@ -42,8 +42,6 @@ module.exports = function (app) {
   app.route('/api/issues/:project')
     // Route for getting list of issues, either all issues or based on params
     .get((req, res) => {
-      let project = req.params.project;
-
       Issue.find()
       .then(i => {
         let issues = [];
@@ -51,7 +49,7 @@ module.exports = function (app) {
         for (const issue in i) {
           // Only show issues for given project
           if (i[issue].project != req.params.project) continue;
-          
+
           // Handles _id url param
           if (req.query._id != undefined && i[issue]._id != req.query._id) continue;
 
@@ -69,7 +67,7 @@ module.exports = function (app) {
 
           // Handles created_by url param
           if (req.query.created_by != undefined && i[issue].created_by != req.query.created_by) continue;
-          
+
           // Handles assigned_to url param
           if (req.query.assigned_to != undefined && i[issue].assigned_to != req.query.assigned_to) continue;
 
@@ -78,7 +76,7 @@ module.exports = function (app) {
 
           // Handles status_text param
           if (req.query.status_text != undefined && i[issue].status_text != req.query.status_text) continue;
-          
+
           issues.push({
             "assigned_to": i[issue].assigned_to,
             "status_text": i[issue].status_text,
@@ -98,11 +96,9 @@ module.exports = function (app) {
         res.json({"error": "No issues found!"});
       });
     })
-    
+
     // Submit issue route
     .post((req, res) => {
-      let project = req.params.project;
-      
       // get current date, this is used for created/updated on
       const curDate = new Date();
 
@@ -135,10 +131,8 @@ module.exports = function (app) {
         res.json({"error": "required field(s) missing"});
       });
     })
-    
+
     .put(async (req, res) => {
-      let project = req.params.project;
-      
       // check for id, as this is required to know which issue to update
       if (req.body._id != undefined && req.body._id != "") {
         // check fields to see if there is anything to update
@@ -158,10 +152,10 @@ module.exports = function (app) {
           await Issue.updateOne({"_id": req.body._id}, changed)
                      .then(i => {
                        // if nothing was matched then the id was not found
-                       if (i.matchedCount == 0) {
-                         res.json({"error": "could not update", "_id": req.body._id});
-                       } else {
+                       if (i.matchedCount > 0) {
                          res.json({"result": "successfully updated", "_id": req.body._id});
+                       } else {
+                         res.json({"error": "could not update", "_id": req.body._id});
                        }
                      })
                      .catch(err => {
@@ -174,10 +168,24 @@ module.exports = function (app) {
         res.json({"error": "missing _id"});
       }
     })
-    
-    .delete(function (req, res){
-      let project = req.params.project;
-      
+
+    .delete((req, res) => {
+      // check for id, as this is required to know which issue to delete
+      if (req.body._id != undefined && req.body._id != "") {
+        Issue.deleteOne({"_id": req.body._id})
+             .then(i => {
+               // if nothing was matched then the id was not found
+               if (i.deletedCount > 0) {
+                 res.json({"result": "successfully deleted", "_id": req.body._id});
+               } else {
+                 res.json({"error": "could not delete", "_id": req.body._id});
+               }
+             })
+             .catch(err => {
+               res.json({"error": "could not delete", "_id": req.body._id});
+             });
+      } else {
+        res.json({"error": "missing _id"});
+      }
     });
-    
 };
