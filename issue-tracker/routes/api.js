@@ -72,7 +72,7 @@ module.exports = function (app) {
           if (req.query.assigned_to != undefined && i[issue].assigned_to != req.query.assigned_to) continue;
 
           // Handles open url param
-          if (req.query.open != undefined && i[issue].open != req.query.open) continue;
+          if (req.query.open != undefined && i[issue].open.toString() != req.query.open) continue;
 
           // Handles status_text param
           if (req.query.status_text != undefined && i[issue].status_text != req.query.status_text) continue;
