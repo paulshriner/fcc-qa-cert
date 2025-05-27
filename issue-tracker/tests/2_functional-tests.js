@@ -15,6 +15,7 @@ suite('Functional Tests', () => {
             .request(server)
             .keepOpen()
             .post('/api/issues/apitest')
+            // thanks https://stackoverflow.com/questions/35697763/post-request-via-chai for send syntax
             .send({
                 issue_title: "test",
                 issue_text: "test",
