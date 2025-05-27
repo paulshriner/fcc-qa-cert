@@ -136,9 +136,43 @@ module.exports = function (app) {
       });
     })
     
-    .put(function (req, res){
+    .put(async (req, res) => {
       let project = req.params.project;
       
+      // check for id, as this is required to know which issue to update
+      if (req.body._id != undefined && req.body._id != "") {
+        // check fields to see if there is anything to update
+        let changed = {};
+        for (const field in req.body) {
+          if (field != '_id') {
+            if ((field == 'open' && req.body[field]) || (req.body[field] != undefined && req.body[field] != "")) {
+              changed[field] = req.body[field];
+            }
+          }
+        }
+
+        if (Object.keys(changed).length > 0) {
+          // here, there is at least one thing to change, so get current date to set updated_on
+          changed["updated_on"] = new Date();
+          // thanks https://mongoosejs.com/docs/api/model.html#Model.updateOne() for reference on updateOne() method
+          await Issue.updateOne({"_id": req.body._id}, changed)
+                     .then(i => {
+                       // if nothing was matched then the id was not found
+                       if (i.matchedCount == 0) {
+                         res.json({"error": "could not update", "_id": req.body._id});
+                       } else {
+                         res.json({"result": "successfully updated", "_id": req.body._id});
+                       }
+                     })
+                     .catch(err => {
+                       res.json({"error": "could not update", "_id": req.body._id});
+                     });
+        } else {
+          res.json({"error": "no update field(s) sent", "_id": req.body._id});
+        }
+      } else {
+        res.json({"error": "missing _id"});
+      }
     })
     
     .delete(function (req, res){
