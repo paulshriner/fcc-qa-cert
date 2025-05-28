@@ -39,7 +39,6 @@ module.exports = function (app) {
         res.json(books);
       })
       .catch(err => {
-        console.log(err);
         res.json({"error": "No books found!"});
       });
     })
@@ -69,11 +68,7 @@ module.exports = function (app) {
       // thanks https://www.slingacademy.com/article/mongoose-how-to-remove-all-documents-from-a-collection/ for deleteMany syntax
       await Book.deleteMany({})
       .then(i => {
-        if (i.deletedCount > 0) {
-          res.send("complete delete successful");
-        } else {
-          res.send("no book exists");
-        }
+        res.send(i.deletedCount > 0 ? "complete delete successful" : "no book exists");
       })
       .catch(err => {
         res.send("no book exists");
@@ -82,7 +77,6 @@ module.exports = function (app) {
 
   app.route('/api/books/:id')
     .get((req, res) => {
-      let bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
       Book.findOne({"_id": req.params.id})
       .then(b => {
@@ -98,20 +92,30 @@ module.exports = function (app) {
     })
     
     .post((req, res) => {
-      let bookid = req.params.id;
-      let comment = req.body.comment;
-      //json res format same as .get
+      // thanks https://www.slingacademy.com/article/mongoose-how-to-update-values-in-an-array-of-objects/ for findOneAndUpdate syntax
+      if (req.body.comment != undefined && req.body.comment != "") {
+        Book.findByIdAndUpdate(req.params.id, {'$push': {comments: req.body.comment}})
+        .then(b => {
+          if (b != null) {
+            // since response should be the same as GET, this just redirects to that page to reduce duplicate code
+            res.redirect(`/api/books/${req.params.id}`);
+          } else {
+            res.send("no book exists");
+          }
+        })
+        .catch(err => {
+          res.send("no book exists");
+        });
+      } else {
+        res.send("missing required field comment");
+      }
     })
     
     .delete((req, res) => {
       //if successful response will be 'delete successful'
       Book.deleteOne({"_id": req.params.id})
       .then(i => {
-        if (i.deletedCount > 0) {
-          res.send("delete successful");
-        } else {
-          res.send("no book exists");
-        }
+        res.send(i.deletedCount > 0 ? "delete successful" : "no book exists");
       })
       .catch(err => {
         res.send("no book exists");
