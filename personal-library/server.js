@@ -3,6 +3,7 @@
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const apiRoutes         = require('./routes/api.js');
@@ -52,5 +53,7 @@ const listener = app.listen(process.env.PORT || 3000, function () {
     }, 1500);
   }
 });
+
+mongoose.connect(process.env.MONGO_URI);
 
 module.exports = app; //for unit/functional testing
