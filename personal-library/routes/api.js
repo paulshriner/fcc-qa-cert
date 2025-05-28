@@ -26,6 +26,22 @@ module.exports = function (app) {
     .get((req, res) => {
       //response will be array of book objects
       //json res format: [{"_id": bookid, "title": book_title, "commentcount": num_of_comments },...]
+      Book.find()
+      .then(b => {
+        let books = [];
+
+        // copies book object then adds comment length
+        // thanks https://www.geeksforgeeks.org/javascript-how-to-add-an-element-to-a-json-object/ for spread operator to copy JSON object
+        for (const book in b) {
+          books[book] = {...b[book]["_doc"], commentcount: b[book].comments.length};
+        }
+
+        res.json(books);
+      })
+      .catch(err => {
+        console.log(err);
+        res.json({"error": "No books found!"});
+      });
     })
     
     .post((req, res) => {
@@ -58,6 +74,17 @@ module.exports = function (app) {
     .get((req, res) => {
       let bookid = req.params.id;
       //json res format: {"_id": bookid, "title": book_title, "comments": [comment,comment,...]}
+      Book.findOne({"_id": req.params.id})
+      .then(b => {
+        if (b != null) {
+          res.json({...b["_doc"], commentcount: b.comments.length});
+        } else {
+          res.send("no book exists");
+        }
+      })
+      .catch(err => {
+        res.send("no book exists");
+      })
     })
     
     .post((req, res) => {
