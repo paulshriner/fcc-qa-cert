@@ -64,11 +64,21 @@ module.exports = function (app) {
       }
     })
     
-    .delete((req, res) => {
+    .delete(async (req, res) => {
       //if successful response will be 'complete delete successful'
+      // thanks https://www.slingacademy.com/article/mongoose-how-to-remove-all-documents-from-a-collection/ for deleteMany syntax
+      await Book.deleteMany({})
+      .then(i => {
+        if (i.deletedCount > 0) {
+          res.send("complete delete successful");
+        } else {
+          res.send("no book exists");
+        }
+      })
+      .catch(err => {
+        res.send("no book exists");
+      })
     });
-
-
 
   app.route('/api/books/:id')
     .get((req, res) => {
@@ -84,7 +94,7 @@ module.exports = function (app) {
       })
       .catch(err => {
         res.send("no book exists");
-      })
+      });
     })
     
     .post((req, res) => {
@@ -94,7 +104,17 @@ module.exports = function (app) {
     })
     
     .delete((req, res) => {
-      let bookid = req.params.id;
       //if successful response will be 'delete successful'
+      Book.deleteOne({"_id": req.params.id})
+      .then(i => {
+        if (i.deletedCount > 0) {
+          res.send("delete successful");
+        } else {
+          res.send("no book exists");
+        }
+      })
+      .catch(err => {
+        res.send("no book exists");
+      });
     });
 };
