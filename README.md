@@ -12,6 +12,10 @@ Allows converting between various units of measurement including gal, L, etc. I 
 
 Tracks issues for projects. An issue can be created with a title, description, and other information. This information can be updated and the issue itself can be deleted. I used a MongoDB database to store issues, Express to handle routes, and did functional tests utilizing the Chai library.
 
+### Personal Library
+
+A library to hold information on books. Each book contains a title and comments. I used a MongoDB database to store books, Express to handle routes, and did functional tests utilizing the Chai library.
+
 ## Skills
 
 - Node.js
