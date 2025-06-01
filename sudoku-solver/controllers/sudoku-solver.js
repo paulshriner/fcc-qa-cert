@@ -62,10 +62,6 @@ class SudokuSolver {
   }
 
   solve(puzzleString) {
-    // have an array for every slot
-    // find which numbers can go in slot
-    // choose slot with least length, pick first number (there may be one number)
-    // recalculate
     let slots = [];
     let solved = false;
 
@@ -110,9 +106,8 @@ class SudokuSolver {
       newPuzzle = newPuzzle.join('');
 
       // here, the puzzle wasn't changed because no new slots were filled where only 1 number was possible
-      // so, we select the slot with smallest num of possibilities, then choose the first number
-      // this does not backtrack so potentially this will lead to an unsolvable puzzle
       if (puzzleString == newPuzzle) {
+        // find slot with smallest number of possibilites
         let index = -1;
         for (let i = 0; i < 81; ++i) {
           if (index == -1 && slots[i].length > 1) {
@@ -122,9 +117,13 @@ class SudokuSolver {
           }
         }
 
-        newPuzzle = newPuzzle.split('');
-        newPuzzle[index] = slots[index][0];
-        newPuzzle = newPuzzle.join('');
+        // go through each num, if it fails then use backtracking to try again
+        for (let i = 0; i < slots[index].length; ++i) {
+          newPuzzle = newPuzzle.split('');
+          newPuzzle[index] = slots[index][i];
+          newPuzzle = newPuzzle.join('');
+          if (this.solve(newPuzzle)) break;
+        }
       }
 
       puzzleString = newPuzzle;

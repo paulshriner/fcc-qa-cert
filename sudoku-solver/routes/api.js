@@ -50,7 +50,7 @@ module.exports = app => {
       } else if (req.body.puzzle.length != 81) {
         res.json({"error": "Expected puzzle to be 81 characters long"});
       } else if (!puzzleRegex.test(req.body.puzzle)) {
-        res.json({"error": "Invalid characters in puzzle"});       
+        res.json({"error": "Invalid characters in puzzle"});
       } else {
         let solvedPuzzle = solver.solve(req.body.puzzle);
 
