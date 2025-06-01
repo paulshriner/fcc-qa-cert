@@ -23,3 +23,9 @@ export const puzzlesAndSolutions = [
 
 export const invalidCharsValidLength = '1.5..2.84..6a.12.7.2..5.....9..1....8.2.3674.3.7.2..9.v7...8..1..16... 926914.37.';
 export const validCharsInvalidLength = '1.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37';
+
+// From https://www.quora.com/Are-there-incomplete-impossible-Sudoku-puzzles-with-no-immediate-conflict-in-the-provided-squares
+export const unsolvablePuzzles = [
+  '..1...........1.........2.........1...........................1..................',
+  '256.498371835.7964974386251849162375562793418731458629697831542428675193315924786'
+]
