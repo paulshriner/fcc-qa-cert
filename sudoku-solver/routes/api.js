@@ -10,12 +10,12 @@ module.exports = app => {
 
   app.route('/api/check')
     .post((req, res) => {
-      if (req.body.puzzle == undefined || req.body.coordinate == undefined || req.body.value == undefined) {
+      let testString = solver.validate(req.body.puzzle, "check");
+
+      if (testString != req.body.puzzle) {
+        res.json(testString);
+      } else if (req.body.coordinate == undefined || req.body.value == undefined) {
         res.json({"error": "Required field(s) missing"});
-      } else if (req.body.puzzle.length != 81) {
-        res.json({"error": "Expected puzzle to be 81 characters long"});
-      } else if (!puzzleRegex.test(req.body.puzzle)) {
-        res.json({"error": "Invalid characters in puzzle"});
       } else if (!valueRegex.test(req.body.value)) {
         res.json({"error": "Invalid value"});
       } else if (!coordRegex.test(req.body.coordinate)) {
@@ -45,12 +45,10 @@ module.exports = app => {
     
   app.route('/api/solve')
     .post((req, res) => {
-      if (req.body.puzzle == undefined) {
-        res.json({"error": "Required field missing"});
-      } else if (req.body.puzzle.length != 81) {
-        res.json({"error": "Expected puzzle to be 81 characters long"});
-      } else if (!puzzleRegex.test(req.body.puzzle)) {
-        res.json({"error": "Invalid characters in puzzle"});
+      let testString = solver.validate(req.body.puzzle, "solve");
+      
+      if (testString != req.body.puzzle) {
+        res.json(testString);
       } else {
         let solvedPuzzle = solver.solve(req.body.puzzle);
 

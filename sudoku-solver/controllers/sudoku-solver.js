@@ -1,4 +1,20 @@
+const puzzleRegex = /^[1-9.]+$/;
+
 class SudokuSolver {
+  // mode is either "check" or "solve", this is because both have different "required fields" message
+  // return either error msg or string
+  validate(puzzleString, mode) {
+    if (puzzleString == undefined) {
+      return mode == "check" ? {"error": "Required field(s) missing"} : {"error": "Required field missing"};
+    } else if (puzzleString.length != 81) {
+      return {"error": "Expected puzzle to be 81 characters long"};
+    } else if (!puzzleRegex.test(puzzleString)) {
+      return {"error": "Invalid characters in puzzle"};
+    }
+
+    return puzzleString;
+  }
+  
   checkRowPlacement(puzzleString, row, column, value) {
     // row is just the sequence of 9 numbers starting with beginning, which is the offset
     let offset = this.letterToNum(row);
