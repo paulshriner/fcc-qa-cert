@@ -52,7 +52,15 @@ module.exports = app => {
       } else if (!puzzleRegex.test(req.body.puzzle)) {
         res.json({"error": "Invalid characters in puzzle"});       
       } else {
-        res.json({"error": "Not really an error!"});
+        let solvedPuzzle = solver.solve(req.body.puzzle);
+
+        if (!solvedPuzzle) {
+          res.json({"error": "Puzzle cannot be solved"});
+        } else {
+          res.json({
+            solution: solvedPuzzle
+          });
+        }
       }
     });
 };
