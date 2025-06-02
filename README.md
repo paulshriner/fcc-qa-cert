@@ -16,6 +16,10 @@ Tracks issues for projects. An issue can be created with a title, description, a
 
 A library to hold information on books. Each book contains a title and comments. I used a MongoDB database to store books, Express to handle routes, and did functional tests utilizing the Chai library.
 
+### Sudoku Solver
+
+A solver for sudoku puzzles. You can enter a puzzle string and it will solve the puzzle. In addition, there is a checking feature where you can check if a value would be valid for a coordinate based on row, column, and region. The solving algorithm uses constraint satisfaction to find possible values for each slot. If a slot is found with one possible value, that slot is filled then all slots are rechecked. If all open slots have multiple possible values, then backtracking is used to attempt each combination of values.
+
 ## Skills
 
 - Node.js
