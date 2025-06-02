@@ -22,9 +22,9 @@ module.exports = app => {
         res.json({"error": "Invalid coordinate"});
       } else {
         // result is true if no conflict, false otherwise
-        let row = solver.checkRowPlacement(req.body.puzzle, req.body.coordinate[0], req.body.coordinate[1], req.body.value);
-        let col = solver.checkColPlacement(req.body.puzzle, req.body.coordinate[0], req.body.coordinate[1], req.body.value);
-        let region = solver.checkRegionPlacement(req.body.puzzle, req.body.coordinate[0], req.body.coordinate[1], req.body.value);
+        let row = solver.checkRowPlacement(req.body.puzzle, req.body.coordinate[0], parseInt(req.body.coordinate[1]), req.body.value);
+        let col = solver.checkColPlacement(req.body.puzzle, req.body.coordinate[0], parseInt(req.body.coordinate[1]), req.body.value);
+        let region = solver.checkRegionPlacement(req.body.puzzle, req.body.coordinate[0], parseInt(req.body.coordinate[1]), req.body.value);
 
         // store conflict types to be used in return message
         let conflict = [];

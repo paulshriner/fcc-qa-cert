@@ -1,5 +1,6 @@
 const puzzleRegex = /^[1-9.]+$/;
 
+// for check functions, column and value must be numeric. row can be either numeric or it's letter equivalent
 class SudokuSolver {
   // mode is either "check" or "solve", this is because both have different "required fields" message
   // return either error msg or string
@@ -16,70 +17,68 @@ class SudokuSolver {
   }
   
   checkRowPlacement(puzzleString, row, column, value) {
+    // ensures non-numeric values aren't passed
+    if (isNaN(column) || isNaN(value)) return false;
+    
     // row is just the sequence of 9 numbers starting with beginning, which is the offset
     let offset = this.letterToNum(row);
-    let checkRow = puzzleString.slice(offset, offset + 9);
-    let count = 0;
 
-    // get count of value in row
-    for (let i = 0; i < checkRow.length; ++i) {
-      if (checkRow[i] == value) ++count;
+    // loop through each element in row
+    // if value is found, but not in slot specified by row/column params, then it is invalid
+    for (let i = offset; i < offset + 9; ++i) {
+      if (puzzleString[i] == value) {
+        if (i != offset + column - 1) return false;
+      }
     }
 
-    // can't have value twice
-    if (count > 1) return false;
-
-    // if it isn't there then it's valid, if it is then see if it was already there
-    return count == 0 || puzzleString[offset + parseInt(column) - 1] == parseInt(value);
+    return true;
   }
 
   checkColPlacement(puzzleString, row, column, value) {
-    // each value in the column is from a different row, so we skip by 9 to get each one
-    let checkColumn = "";
-    for (let i = parseInt(column) - 1; i < 81; i += 9) {
-      checkColumn = checkColumn.concat(puzzleString[i]);
-    }
-
-    // (index finding similar to checkRowPlacement)
+    if (isNaN(column) || isNaN(value)) return false;
+    
     let offset = this.letterToNum(row);
-    let count = 0;
 
-    for (let i = 0; i < checkColumn.length; ++i) {
-      if (checkColumn[i] == value) ++count;
+    // each value in the column is from a different row, so we skip by 9 to get each one
+    // (inner loop logic is same as checkRowPlacement)
+    for (let i = column - 1; i < 81; i += 9) {
+      if (puzzleString[i] == value) {
+        if (i != offset + column - 1) return false;
+      }      
     }
 
-    if (count > 1) return false;
-
-    return count == 0 || puzzleString[offset + parseInt(column) - 1] == parseInt(value);
+    return true;
   }
 
   checkRegionPlacement(puzzleString, row, column, value) {
+    if (isNaN(column) || isNaN(value)) return false;
+    
+    let offset = this.letterToNum(row);
+    
     // represents upper left cell of region we are looking in
     let regionRow = this.getStartOfRegionRow(row);
     let regionCol = this.getStartOfRegionCol(parseInt(column));
+    if (regionRow == -1 || regionCol == -1) return false;
 
-    // get each row of the region
-    let checkRegion = "";
+    // go through each row of region
+    // (inner loop logic is same as checkRowPlacement)
     for (let i = regionRow; i < regionRow + 27; i += 9) {
-      checkRegion = checkRegion.concat(puzzleString.slice(i + regionCol, i + regionCol + 3));
+      for (let j = i + regionCol; j < i + regionCol + 3; ++j) {
+        if (puzzleString[j] == value) {
+          if (j != offset + column - 1) return false;
+        }         
+      }
     }
 
-    // (index finding similar to checkRowPlacement)
-    let offset = this.letterToNum(row);
-    let count = 0;
-
-    for (let i = 0; i < checkRegion.length; ++i) {
-      if (checkRegion[i] == value) ++count;
-    }
-
-    if (count > 1) return false;
-
-    return count == 0 || puzzleString[offset + parseInt(column) - 1] == parseInt(value);
+    return true;
   }
 
   solve(puzzleString) {
     let slots = [];
     let solved = false;
+
+    // ensures that invalid puzzle does not get passed into solver directly
+    if (this.validate(puzzleString, "solve") != puzzleString) return false; 
 
     while (!solved) {
       // go through entire puzzleString
@@ -123,13 +122,12 @@ class SudokuSolver {
 
       // here, the puzzle wasn't changed because no new slots were filled where only 1 number was possible
       if (puzzleString == newPuzzle) {
-        // find slot with smallest number of possibilites
-        let index = -1;
+        // find a slot with more than 1 possibility
+        let index = 0;
         for (let i = 0; i < 81; ++i) {
-          if (index == -1 && slots[i].length > 1) {
+          if (slots[i].length > 1) {
             index = i;
-          } else if (slots[i].length > 1 && slots[i].length < slots[index].length) {
-            index = i;
+            break;
           }
         }
 
@@ -138,7 +136,7 @@ class SudokuSolver {
           newPuzzle = newPuzzle.split('');
           newPuzzle[index] = slots[index][i];
           newPuzzle = newPuzzle.join('');
-          if (this.solve(newPuzzle)) break;
+          if (this.solve(newPuzzle)) break;            
         }
       }
 
@@ -231,7 +229,7 @@ class SudokuSolver {
         return 6;
     }
 
-    return value;
+    return -1;
   }
 }
 
