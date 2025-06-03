@@ -16,7 +16,7 @@ module.exports = app => {
       } else {
         res.json({
           text: req.body.text,
-          translation: translator.translate(req.body.text, req.body.locale)
+          translation: translator.translate(req.body.text, req.body.locale, true)
         });
       }
     });
